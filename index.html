@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>牢旺妙妙小工具</title>
+    <title>妙妙小工具</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -217,7 +217,7 @@
             <div class="module-card cutter-card" onclick="switchModule('cutterWorkspace')">
                 <div class="icon">✂️</div>
                 <h3>切割压缩模块</h3>
-                <p>支持多图、自定义命名！3:4 锁定裁剪，自定义切割网格（2x2, 3x3 等），自适应目标体积无损压缩。</p>
+                <p>支持多图、自定义全局命名！3:4 锁定裁剪，自定义切割网格（2x2, 3x3 等），自适应目标体积无损压缩。</p>
             </div>
             
             <div class="module-card compressor-card" onclick="switchModule('compressorWorkspace')">
@@ -327,12 +327,13 @@ const zipCheckbox = document.getElementById('zipCheckbox');
 const cutterDownloadBtn = document.getElementById('cutterDownloadBtn');
 
 let cutterDownloadQueue = []; 
+let globalUploadedFiles = []; // 保存当前上传的所有文件信息，用于精细化ZIP压缩包命名
 
 cutterFileInput.addEventListener('change', handleCutterBatchFiles);
 
 function resetCutterWorkspace() {
     cutterFileInput.value = ''; cutterMasterContainer.innerHTML = ''; cutterStatus.textContent = '';
-    cutterActionBar.style.display = 'none'; cutterDownloadQueue = [];
+    cutterActionBar.style.display = 'none'; cutterDownloadQueue = []; globalUploadedFiles = [];
 }
 
 function toggleCutterDownloadMode() {
@@ -342,13 +343,13 @@ function toggleCutterDownloadMode() {
     else cutterDownloadBtn.classList.remove('zip-mode');
 }
 
-// 多图核心接入口
 function handleCutterBatchFiles(e) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
     cutterMasterContainer.innerHTML = '';
     cutterDownloadQueue = [];
+    globalUploadedFiles = [];
     cutterActionBar.style.display = 'none';
     cutterStatus.textContent = `发现 ${files.length} 张图片，正在初始化任务...`;
 
@@ -357,12 +358,12 @@ function handleCutterBatchFiles(e) {
     const totalExpectedSegments = files.length * gridSize * gridSize;
     let overallCompletedSegments = 0;
 
-    // 解析并过滤命名模板，防止恶意或非法字符破环文件名
     let pattern = namePatternInput.value.trim();
     if (!pattern) pattern = "{num}"; 
 
     files.forEach((file, fileIdx) => {
         const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+        globalUploadedFiles.push(baseName); // 记录原图名
 
         const batchBox = document.createElement('div');
         batchBox.className = 'batch-wrapper';
@@ -391,7 +392,6 @@ function handleCutterBatchFiles(e) {
     });
 }
 
-// 包含自定义命名的单图切分
 function sliceSingleImgInBatch(img, baseName, gridSize, maxByteSize, pattern, targetDOMContainer, onImgAllDoneCallback) {
     let srcX = 0, srcY = 0, srcWidth = img.width, srcHeight = img.height;
     const targetRatio = 3 / 4;
@@ -422,9 +422,7 @@ function sliceSingleImgInBatch(img, baseName, gridSize, maxByteSize, pattern, ta
                 const url = URL.createObjectURL(blob);
                 const kbSize = (blob.size / 1024).toFixed(2);
                 
-                // 【核心逻辑】根据用户配置的模板动态渲染出最终文件名
                 let dynamicName = pattern.replace(/{name}/g, baseName).replace(/{num}/g, numId);
-                // 过滤掉操作系统的非法文件名字符 (\ / : * ? " < > |)
                 dynamicName = dynamicName.replace(/[\\/:*?"<>|]/g, "_");
                 
                 const finalFileName = `${dynamicName}.jpeg`;
@@ -437,7 +435,6 @@ function sliceSingleImgInBatch(img, baseName, gridSize, maxByteSize, pattern, ta
                 };
                 cutterDownloadQueue.push(singleTask);
 
-                // 渲染局部 DOM
                 const item = document.createElement('div');
                 item.className = 'img-item';
                 item.setAttribute('data-id', numId);
@@ -458,24 +455,40 @@ function sliceSingleImgInBatch(img, baseName, gridSize, maxByteSize, pattern, ta
     }
 }
 
-// 批量多图安全导出
+// 批量多图安全导出（外层ZIP包命名机制已全面重构升级）
 function executeCutterDownload() {
     if (cutterDownloadQueue.length === 0) return;
 
     if (zipCheckbox.checked) {
         const zip = new JSZip();
         cutterDownloadQueue.forEach(task => {
-            // 在 ZIP 内部为每张原图建立一个独立的二级子文件夹
             zip.folder(task.folder).file(task.fileName, task.blob);
         });
         
+        // 【核心修改点】根据用户设置的命名格式，动态演算压缩包本身的名字
+        let patternText = namePatternInput.value.trim();
+        let zipTitle = "切图输出合集"; // 兜底默认名
+
+        if (patternText && patternText !== "{num}") {
+            // 如果用户写了特定的前缀（例: "淘宝商品_{num}"），去掉占位符作为压缩包名
+            let cleanPrefix = patternText.replace(/{num}/g, "").replace(/{name}/g, "").replace(/[\\/:*?"<>|_\- ]/g, "");
+            if(cleanPrefix) {
+                zipTitle = `${cleanPrefix}_打包合集`;
+            }
+        } else if (globalUploadedFiles.length === 1) {
+            // 如果只有一张图且没有特定前缀，直接用“原图片名”给压缩包命名，简单直观
+            zipTitle = `${globalUploadedFiles[0]}_切图打包`;
+        }
+        
+        // 确保名字没有非法特殊字符
+        zipTitle = zipTitle.replace(/[\\/:*?"<>|]/g, "_");
+
         cutterStatus.textContent = '正在多图归类、打包为大压缩包中...';
         zip.generateAsync({ type: "blob" }).then(content => {
-            saveAs(content, `多图批量切图合集_${gridSelect.value}x${gridSelect.value}.zip`);
+            saveAs(content, `${zipTitle}_${gridSelect.value}x${gridSelect.value}.zip`);
             cutterStatus.textContent = '✨ 批量 ZIP 压缩包已成功下载！';
         });
     } else {
-        // 顺序触发直接下载
         cutterDownloadQueue.forEach((task, i) => {
             if(!task) return;
             setTimeout(() => {
