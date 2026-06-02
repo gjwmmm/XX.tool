@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图像处理妙妙工具</title>
+    <title>妙妙工具 </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -20,12 +20,14 @@
             --teal-hover: #16a085;
             --orange-color: #e67e22;
             --orange-hover: #d35400;
+            --indigo-color: #3f51b5;
+            --indigo-hover: #303f9f;
             --bg-color: #f5f7fa;
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 950px;
+            max-width: 1000px;
             margin: 40px auto;
             padding: 0 20px;
             background-color: var(--bg-color);
@@ -67,6 +69,7 @@
         .module-card.compressor-card:hover { border-color: var(--purple-color); }
         .module-card.downloader-card:hover { border-color: var(--teal-color); }
         .module-card.video-card:hover { border-color: var(--orange-color); }
+        .module-card.atlas-card:hover { border-color: var(--indigo-color); }
         
         .module-card .icon { font-size: 40px; margin-bottom: 15px; }
         .module-card h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 18px; }
@@ -139,6 +142,9 @@
         
         .video-upload { border: 2px dashed var(--orange-color); }
         .video-upload:hover, .video-upload.dragover { background: #fdf6ed; border-color: var(--orange-hover); transform: scale(1.01); }
+
+        .atlas-upload { border: 2px dashed var(--indigo-color); }
+        .atlas-upload:hover, .atlas-upload.dragover { background: #f0f2fc; border-color: var(--indigo-hover); transform: scale(1.01); }
         
         .file-input-hidden { display: none; }
         
@@ -153,62 +159,49 @@
             font-weight: bold;
             transition: background 0.2s;
         }
-        .btn-all-download.cutter-btn { background: var(--primary-color); box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2); }
-        .btn-all-download.cutter-btn:hover { background: var(--primary-hover); }
-        .btn-all-download.cutter-btn.zip-mode { background: var(--warning-color); box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2); }
-        .btn-all-download.cutter-btn.zip-mode:hover { background: var(--warning-hover); }
-        
-        .btn-all-download.compressor-btn { background: var(--purple-color); box-shadow: 0 4px 6px rgba(155, 89, 182, 0.2); }
-        .btn-all-download.compressor-btn:hover { background: var(--purple-hover); }
-        .btn-all-download.video-btn { background: var(--orange-color); box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2); }
-        .btn-all-download.video-btn:hover { background: var(--orange-hover); }
+        .btn-all-download.cutter-btn { background: var(--primary-color); }
+        .btn-all-download.cutter-btn.zip-mode { background: var(--warning-color); }
+        .btn-all-download.compressor-btn { background: var(--purple-color); }
+        .btn-all-download.video-btn { background: var(--orange-color); }
+        .btn-all-download.atlas-btn { background: var(--indigo-color); box-shadow: 0 4px 6px rgba(63, 81, 181, 0.2); }
+        .btn-all-download.atlas-btn:hover { background: var(--indigo-hover); }
 
-        /* --- 资源下载模块特有样式 --- */
+        /* --- 资源嗅探及布局区 --- */
         .downloader-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .downloader-bar input[type="text"] {
-            flex: 1; padding: 12px; border: 2px solid var(--teal-color); border-radius: 6px; font-size: 14px; outline: none;
-        }
-        .btn-analyze {
-            background: var(--teal-color); color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background 0.2s;
-        }
-        .btn-analyze:hover { background: var(--teal-hover); }
+        .downloader-bar input[type="text"] { flex: 1; padding: 12px; border: 2px solid var(--teal-color); border-radius: 6px; font-size: 14px; outline: none; }
+        .btn-analyze { background: var(--teal-color); color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
         
         .res-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .res-tab { padding: 6px 16px; background: #e2e8f0; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .res-tab.active { background: var(--teal-color); color: white; }
         
         .res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .res-card {
-            background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .res-preview {
-            width: 100%; height: 120px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px; overflow: hidden; margin-bottom: 8px;
-        }
-        .res-preview img, .res-preview video { width: 100%; height: 100%; object-fit: cover; }
-        .res-info { font-size: 11px; color: #666; word-break: break-all; margin-bottom: 8px; text-align: left; line-height: 1.3; max-height: 48px; overflow: hidden; }
+        .res-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; }
+        .res-preview { width: 100%; height: 120px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
+        .res-preview img, .res-preview canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .res-info { font-size: 11px; color: #666; word-break: break-all; margin-bottom: 8px; text-align: left; line-height: 1.3; }
 
-        /* --- 多图外层卡片布局 --- */
         .batch-wrapper { margin-top: 25px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; background: #fff; }
         .batch-title { font-size: 14px; font-weight: bold; color: #4a5568; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0; text-align: left; }
-
-        /* 布局输出区 */
         .grid-output { display: grid; gap: 15px; }
         .single-output { display: flex; justify-content: center; margin-top: 20px; }
         
-        .img-item {
-            background: #fff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); max-width: 100%;
-        }
+        .img-item { background: #fff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; text-align: center; }
         .img-item img { max-width: 100%; max-height: 450px; height: auto; border-radius: 4px; display: block; margin: 0 auto 10px; }
-        .info { font-size: 13px; color: #555; margin-bottom: 8px; line-height: 1.4; }
-        .btn-download {
-            background: var(--success-color); color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 13px; display: inline-block; text-align: center;
-        }
+        .info { font-size: 13px; color: #555; margin-bottom: 8px; }
+        .btn-download { background: var(--success-color); color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 13px; display: inline-block; }
         .btn-download:hover { background: var(--success-hover); }
+        
         .status-msg { text-align: center; font-weight: bold; margin: 15px 0; min-height: 20px;}
         .status-cutter { color: var(--warning-color); }
         .status-compressor { color: var(--purple-color); }
         .status-downloader { color: var(--teal-color); }
         .status-video { color: var(--orange-color); }
+        .status-atlas { color: var(--indigo-color); }
+
+        /* 图集特有预览框 */
+        .atlas-preview-container { text-align: center; margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #333; overflow: auto; max-height: 500px; }
+        .atlas-preview-container canvas { background-image: linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444), linear-gradient(45deg, #444 25%, #222 25%, #222 75%, #444 75%, #444); background-size: 20px 20px; background-position: 0 0, 10px 10px; max-width: 100%; height: auto; border: 1px dashed #fff; }
     </style>
 </head>
 <body>
@@ -217,31 +210,37 @@
     
     <div id="mainDashboard" class="main-dash">
         <h1>图像处理妙妙工具</h1>
-        <div class="subtitle">纯本地安全运行 · 多功能媒体工作台</div>
+        <div class="subtitle">纯本地安全运行 · 跨平台多功能美术流水线工作台</div>
         
         <div class="module-grid">
             <div class="module-card cutter-card" onclick="switchModule('cutterWorkspace')">
                 <div class="icon">✂️</div>
                 <h3>切割压缩模块</h3>
-                <p>3:4 锁定裁剪，自定义多宫格网格，自适应目标体积压缩。</p>
+                <p>居中 3:4 锁定裁剪，支持矩阵动态分割，自适应控制输出体积。</p>
             </div>
             
             <div class="module-card compressor-card" onclick="switchModule('compressorWorkspace')">
                 <div class="icon">🗜️</div>
                 <h3>单图压缩模块</h3>
-                <p>不对画面进行裁剪和形变，等比例强制压制到指定 KB 容量。</p>
+                <p>完全保留长宽比例与像素，等比例递归强制压制至目标容量内。</p>
             </div>
 
             <div class="module-card downloader-card" onclick="switchModule('downloaderWorkspace')">
                 <div class="icon">🌐</div>
                 <h3>资源下载模块</h3>
-                <p>全自动嗅探提取目标网页中的所有图片、视频和音频资源。</p>
+                <p>全自动穿透跨域代理，分析捕捉目标网页中的所有多媒体源。</p>
             </div>
 
             <div class="module-card video-card" onclick="switchModule('videoWorkspace')">
                 <div class="icon">🎞️</div>
                 <h3>视频转序列帧</h3>
-                <p>导入本地视频，均分抽取指定 M 帧，每张图智能控制在 K 大小内。</p>
+                <p>本地音视频轨道高保真秒级离散抽帧，智能量化每帧导出大小。</p>
+            </div>
+
+            <div class="module-card atlas-card" onclick="switchModule('atlasWorkspace')">
+                <div class="icon">📦</div>
+                <h3>图集大图生成器</h3>
+                <p>散图自动化高密度拼合，一键导出 Unity JSON 与 Cocos Plist 数据配对包。</p>
             </div>
         </div>
     </div>
@@ -252,7 +251,6 @@
             <h2>3:4 比例多宫格切图与智能压缩</h2>
             <p><strong>功能说明：</strong>居中 3:4 裁剪并分割为对应的网格，体积全部控制在设定档位内。</p>
         </div>
-        
         <div class="settings-bar">
             <div class="setting-item">
                 <label for="gridSelect">切割矩阵：</label>
@@ -288,15 +286,12 @@
                 <label for="zipCheckbox" style="cursor:pointer;">打包为 .ZIP 输出</label>
             </div>
         </div>
-
         <div id="cutterDropZone" class="upload-area cutter-upload" onclick="document.getElementById('cutterFileInput').click()">
             <p style="margin:0; font-size: 15px; color:#555;">点击或将图片<b>拖拽到此处</b>进行多选上传</p>
             <input type="file" id="cutterFileInput" class="file-input-hidden" accept="image/*" multiple>
         </div>
         <div id="cutterStatus" class="status-msg status-cutter"></div>
-        <div class="action-bar" id="cutterActionBar">
-            <button id="cutterDownloadBtn" class="btn-all-download cutter-btn zip-mode" onclick="executeCutterDownload()">⬇️ 一键下载所有打包切图</button>
-        </div>
+        <div class="action-bar" id="cutterActionBar"><button id="cutterDownloadBtn" class="btn-all-download cutter-btn zip-mode" onclick="executeCutterDownload()">⬇️ 一键下载所有打包切图</button></div>
         <div id="cutterMasterContainer"></div>
     </div>
 
@@ -306,22 +301,18 @@
             <h2>单图等比例保真压缩器</h2>
             <p><strong>功能说明：</strong>完全保留画面的原有长宽比，强行将单图文件压制到指定的体积档位。</p>
         </div>
-        
         <div class="settings-bar">
             <div class="setting-item">
                 <label for="compressorSizeInput">目标文件体积限制在：</label>
                 <input type="number" id="compressorSizeInput" value="100" min="1"><span>KB 以内</span>
             </div>
         </div>
-
         <div id="compressorDropZone" class="upload-area compressor-upload" onclick="document.getElementById('compressorFileInput').click()">
             <p style="margin:0; font-size: 15px; color:#555;">点击或将图片<b>拖拽到此处</b>开始原图压缩</p>
             <input type="file" id="compressorFileInput" class="file-input-hidden" accept="image/*">
         </div>
         <div id="compressorStatus" class="status-msg status-compressor"></div>
-        <div class="action-bar" id="compressorActionBar">
-            <button id="compressorDownloadBtn" class="btn-all-download compressor-btn" onclick="executeCompressorDownload()">⬇️ 立即下载压缩后的图片</button>
-        </div>
+        <div class="action-bar" id="compressorActionBar"><button id="compressorDownloadBtn" class="btn-all-download compressor-btn" onclick="executeCompressorDownload()">⬇️ 立即下载压缩后的图片</button></div>
         <div class="single-output" id="compressorOutputContainer"></div>
     </div>
 
@@ -351,40 +342,76 @@
         <button class="btn-back" onclick="goHome()">⬅️ 返回主页</button>
         <div class="header-area">
             <h2>本地视频精准抽帧与体积量化器</h2>
-            <p><strong>功能说明：</strong>导入任意 MP4/WebM 视频，指定导出的总帧数 $M$，系统将等时间距抽帧，并运用图像压制引擎强行确保每张导出的序列帧大小在指定的 $K$ KB 以内。</p>
+            <p><strong>功能说明：</strong>导入任意 MP4/WebM 视频，指定导出的总帧数 $M$，自适应压制大小在指定的 $K$ KB 以内。</p>
         </div>
-
         <div class="settings-bar">
             <div class="setting-item">
                 <label for="videoFrameCountInput">抽取总帧数 (M)：</label>
-                <input type="number" id="videoFrameCountInput" value="10" min="1" max="200">
-                <span>张序列帧</span>
+                <input type="number" id="videoFrameCountInput" value="10" min="1" max="200"><span>张序列帧</span>
             </div>
             <div class="setting-item">
                 <label for="videoFrameSizeInput">单帧上限控制 (K)：</label>
-                <input type="number" id="videoFrameSizeInput" value="50" min="1" max="10000">
-                <span>KB 内</span>
+                <input type="number" id="videoFrameSizeInput" value="50" min="1" max="10000"><span>KB 内</span>
             </div>
             <div class="setting-item">
                 <label for="videoNamePrefix">文件命名命名前缀：</label>
                 <input type="text" id="videoNamePrefix" value="frame" placeholder="例如: frame">
             </div>
         </div>
-
         <div id="videoDropZone" class="upload-area video-upload" onclick="document.getElementById('videoFileInput').click()">
             <p style="margin:0; font-size: 15px; color:#555;">点击或将本地视频文件 (MP4 / WebM) <b>拖拽到此处</b></p>
             <input type="file" id="videoFileInput" class="file-input-hidden" accept="video/*">
         </div>
-
         <div id="videoStatus" class="status-msg status-video"></div>
-
-        <div class="action-bar" id="videoActionBar">
-            <button id="videoDownloadBtn" class="btn-all-download video-btn" onclick="executeVideoZipDownload()">🎁 打包下载全套序列帧 (.ZIP)</button>
-        </div>
-
+        <div class="action-bar" id="videoActionBar"><button id="videoDownloadBtn" class="btn-all-download video-btn" onclick="executeVideoZipDownload()">🎁 打包下载全套序列帧 (.ZIP)</button></div>
         <div class="batch-wrapper" id="videoOutputWrapper" style="display:none;">
             <div class="batch-title">🎞️ 序列帧输出预览区</div>
             <div class="res-grid" id="videoGridContainer"></div>
+        </div>
+    </div>
+
+    <div id="atlasWorkspace" class="workspace">
+        <button class="btn-back" onclick="goHome()">⬅️ 返回主页</button>
+        <div class="header-area">
+            <h2>游戏引擎本地图集打包与数据生成器</h2>
+            <p><strong>功能说明：</strong>批量拖入多个散图，高密度紧凑拼合。自动为 Cocos Creator 和 Unity 编译对应的描述配置文件信息。</p>
+        </div>
+        <div class="settings-bar">
+            <div class="setting-item">
+                <label for="atlasMaxSize">图集最大边界：</label>
+                <select id="atlasMaxSize">
+                    <option value="1024">1024 × 1024</option>
+                    <option value="2048" selected>2048 × 2048</option>
+                    <option value="4096">4096 × 4096</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label for="atlasPadding">精灵间距 (Padding)：</label>
+                <input type="number" id="atlasPadding" value="2" min="0" max="20" style="width:50px;"><span>px</span>
+            </div>
+            <div class="setting-item">
+                <label for="atlasExportName">输出命名主键：</label>
+                <input type="text" id="atlasExportName" value="hero_atlas" placeholder="如: main_ui">
+            </div>
+        </div>
+
+        <div id="atlasDropZone" class="upload-area atlas-upload" onclick="document.getElementById('atlasFileInput').click()">
+            <p style="margin:0; font-size: 15px; color:#555;">点击或将多张<b> UI 散图 / 精灵资产</b>批量拖拽到此处进行打包</p>
+            <input type="file" id="atlasFileInput" class="file-input-hidden" accept="image/*" multiple>
+        </div>
+
+        <div id="atlasStatus" class="status-msg status-atlas"></div>
+
+        <div class="action-bar" id="atlasActionBar" style="gap:15px; justify-content:center; display:none;">
+            <button class="btn-all-download atlas-btn" onclick="downloadAtlasPackage('cocos')">🚀 导出 Cocos 打包组 (.PNG + .PLIST)</button>
+            <button class="btn-all-download atlas-btn" style="background:var(--success-color);" onclick="downloadAtlasPackage('unity')">🌿 导出 Unity 打包组 (.PNG + .JSON)</button>
+        </div>
+
+        <div class="batch-wrapper" id="atlasPreviewWrapper" style="display:none;">
+            <div class="batch-title">📊 拼合预览面板 (暗色背景便于观察透明通道边界)</div>
+            <div class="atlas-preview-container">
+                <canvas id="atlasCanvasPreview"></canvas>
+            </div>
         </div>
     </div>
 
@@ -402,11 +429,13 @@ function goHome() {
     document.getElementById('compressorWorkspace').style.display = 'none';
     document.getElementById('downloaderWorkspace').style.display = 'none';
     document.getElementById('videoWorkspace').style.display = 'none';
+    document.getElementById('atlasWorkspace').style.display = 'none';
     document.getElementById('mainDashboard').style.display = 'block';
     resetCutterWorkspace();
     resetCompressorWorkspace();
     resetDownloaderWorkspace();
     resetVideoWorkspace();
+    resetAtlasWorkspace();
 }
 
 // ==================== 全局拖拽拦截与绑定优化 ====================
@@ -434,19 +463,238 @@ window.addEventListener('DOMContentLoaded', () => {
     setupDragAndDrop('cutterDropZone', 'cutterFileInput');
     setupDragAndDrop('compressorDropZone', 'compressorFileInput');
     setupDragAndDrop('videoDropZone', 'videoFileInput', (files) => { processVideoFrameEngine(files[0]); });
+    setupDragAndDrop('atlasDropZone', 'atlasFileInput'); // 挂载图集拖拽
 });
 
-// 辅助工具：将数字索引转为 excel 式的字母命名（0->a, 25->z, 26->aa, 27->ab）
 function convertToAlphabet(index) {
     let columnName = "";
-    while (index >= 0) {
-        columnName = String.fromCharCode((index % 26) + 97) + columnName;
-        index = Math.floor(index / 26) - 1;
-    }
+    while (index >= 0) { columnName = String.fromCharCode((index % 26) + 97) + columnName; index = Math.floor(index / 26) - 1; }
     return columnName;
 }
 
-// ==================== 核心逻辑一：切割压缩模块 ====================
+// ==================== [新增模块] 图集打包排样核心算法逻辑 ====================
+const atlasFileInput = document.getElementById('atlasFileInput');
+const atlasStatus = document.getElementById('atlasStatus');
+const atlasActionBar = document.getElementById('atlasActionBar');
+const atlasPreviewWrapper = document.getElementById('atlasPreviewWrapper');
+const atlasCanvasPreview = document.getElementById('atlasCanvasPreview');
+let loadedAtlasSprites = []; 
+
+atlasFileInput.addEventListener('change', handleAtlasBatchLoad);
+
+function resetAtlasWorkspace() {
+    atlasFileInput.value = ''; atlasStatus.textContent = ''; atlasActionBar.style.display = 'none';
+    atlasPreviewWrapper.style.display = 'none'; loadedAtlasSprites = [];
+}
+
+function handleAtlasBatchLoad(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    resetAtlasWorkspace();
+    atlasStatus.textContent = `正在并行解码 ${files.length} 个精灵资产文件...`;
+
+    let loadedCount = 0;
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                loadedAtlasSprites.push({ img, name: cleanName, w: img.width, h: img.height });
+                loadedCount++;
+                if (loadedCount === files.length) {
+                    processAtlasGeneration();
+                }
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// MaxRects 拼合算法精简高速实现
+function processAtlasGeneration() {
+    if (loadedAtlasSprites.length === 0) return;
+    
+    // 按高度从大到小排序（经典的启发式最佳排样策略）
+    loadedAtlasSprites.sort((a, b) => b.h - a.h);
+
+    const maxSize = parseInt(document.getElementById('atlasMaxSize').value);
+    const padding = parseInt(document.getElementById('atlasPadding').value);
+    
+    // 初始化空置矩形可用空间轨道
+    let atlasWidth = 128, atlasHeight = 128;
+    let packedResults = [];
+    let success = false;
+
+    // 动态倍增画布尺寸，直到能够完全容纳或触发上限超出边界
+    while (atlasWidth <= maxSize && atlasHeight <= maxSize) {
+        packedResults = [];
+        let freeRects = [{ x: 0, y: 0, w: atlasWidth, h: atlasHeight }];
+        let allFit = true;
+
+        for (let sprite of loadedAtlasSprites) {
+            let fitFound = false;
+            // 间距计算边界扩展
+            let neededW = sprite.w + padding;
+            let neededH = sprite.h + padding;
+
+            for (let i = 0; i < freeRects.length; i++) {
+                let r = freeRects[i];
+                if (r.w >= neededW && r.h >= neededH) {
+                    // 决定在该区域切分，记录数据坐标
+                    packedResults.push({
+                        sprite,
+                        x: r.x,
+                        y: r.y,
+                        w: sprite.w,
+                        h: sprite.h
+                    });
+
+                    // 产生经典二叉切分可用空置区
+                    let rightRect = { x: r.x + neededW, y: r.y, w: r.w - neededW, h: neededH };
+                    let bottomRect = { x: r.x, y: r.y + neededH, w: r.w, h: r.h - neededH };
+
+                    freeRects.splice(i, 1);
+                    if (rightRect.w > 0 && rightRect.h > 0) freeRects.push(rightRect);
+                    if (bottomRect.w > 0 && bottomRect.h > 0) freeRects.push(bottomRect);
+
+                    fitFound = true;
+                    break;
+                }
+            }
+
+            if (!fitFound) {
+                allFit = false;
+                break;
+            }
+        }
+
+        if (allFit) {
+            success = true;
+            break;
+        } else {
+            // 画布尺寸阶梯级数膨胀
+            if (atlasWidth <= atlasHeight) atlasWidth *= 2;
+            else atlasHeight *= 2;
+        }
+    }
+
+    if (!success) {
+        atlasStatus.innerHTML = `❌ <b>图集溢出：</b>当前选择的规格上限无法装下所有图片。建议扩大“图集最大边界”限制，或分批次导入。`;
+        return;
+    }
+
+    // 绘制大图预览
+    atlasCanvasPreview.width = atlasWidth;
+    atlasCanvasPreview.height = atlasHeight;
+    const ctx = atlasCanvasPreview.getContext('2d');
+    ctx.clearRect(0, 0, atlasWidth, atlasHeight);
+
+    packedResults.forEach(p => {
+        ctx.drawImage(p.sprite.img, p.x, p.y, p.w, p.h);
+    });
+
+    // 挂载全局临时变量便于导出
+    window.currentAtlasData = { packedResults, w: atlasWidth, h: atlasHeight };
+
+    atlasStatus.innerHTML = `✨ <b>图集成功编排！</b> 拼合尺寸：${atlasWidth} × ${atlasHeight} px 空间利用率优秀。`;
+    atlasPreviewWrapper.style.display = 'block';
+    atlasActionBar.style.display = 'flex';
+}
+
+function downloadAtlasPackage(engineType) {
+    if (!window.currentAtlasData) return;
+    const { packedResults, w, h } = window.currentAtlasData;
+    const mainFileName = document.getElementById('atlasExportName').value.trim() || "texture_atlas";
+
+    // 转换 Canvas 图像至 Blob
+    atlasCanvasPreview.toBlob((pngBlob) => {
+        const zip = new JSZip();
+        zip.file(`${mainFileName}.png`, pngBlob);
+
+        if (engineType === 'cocos') {
+            // 构建标准标准的 Plist XML 结构数据
+            let plistContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>frames</key>
+        <dict>\n`;
+
+            packedResults.forEach(p => {
+                plistContent += `            <key>${p.sprite.name}.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{${p.w},${p.h}}</string>
+                <key>spriteSourceSize</key>
+                <string>{${p.w},${p.h}}</string>
+                <key>textureRect</key>
+                <string>{{${p.x},${p.y}},{${p.w},${p.h}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>\n`;
+            });
+
+            plistContent += `        </dict>
+        <key>metadata</key>
+        <dict>
+            <key>format</key>
+            <integer>3</integer>
+            <key>pixelFormat</key>
+            <string>RGBA8888</string>
+            <key>premultiplyAlpha</key>
+            <false/>
+            <key>realTextureFileName</key>
+            <string>${mainFileName}.png</string>
+            <key>size</key>
+            <string>{${w},${h}}</string>
+            <key>textureFileName</key>
+            <string>${mainFileName}.png</string>
+        </dict>
+    </dict>
+</plist>`;
+            zip.file(`${mainFileName}.plist`, plistContent);
+
+        } else if (engineType === 'unity') {
+            // 构建符合 Unity 读取特性的标准化 JSON
+            let unityJson = {
+                meta: {
+                    image: `${mainFileName}.png`,
+                    size: { w, h },
+                    scale: "1"
+                },
+                sprites: []
+            };
+
+            packedResults.forEach(p => {
+                unityJson.sprites.push({
+                    name: p.sprite.name,
+                    frame: { x: p.x, y: p.y, w: p.w, h: p.h },
+                    rotated: false,
+                    trimmed: false,
+                    spriteSourceSize: { x: 0, y: 0, w: p.w, h: p.h },
+                    sourceSize: { w: p.w, h: p.h },
+                    pivot: { x: 0.5, y: 0.5 } // 默认居中对齐锚点
+                });
+            });
+            zip.file(`${mainFileName}.json`, JSON.stringify(unityJson, null, 4));
+        }
+
+        // 打包本地触发
+        zip.generateAsync({ type: "blob" }).then(content => {
+            saveAs(content, `${mainFileName}_${engineType}_pack.zip`);
+            atlasStatus.textContent = `✨ 【${engineType.toUpperCase()}】数据包导出完毕！`;
+        });
+    }, 'image/png');
+}
+
+// ==================== 业务逻辑一：切割压缩模块 ====================
 const cutterFileInput = document.getElementById('cutterFileInput');
 const cutterMasterContainer = document.getElementById('cutterMasterContainer');
 const cutterStatus = document.getElementById('cutterStatus');
@@ -462,58 +710,36 @@ let cutterDownloadQueue = [];
 
 cutterFileInput.addEventListener('change', handleCutterBatchFiles);
 
-function resetCutterWorkspace() {
-    cutterFileInput.value = ''; cutterMasterContainer.innerHTML = ''; cutterStatus.textContent = '';
-    cutterActionBar.style.display = 'none'; cutterDownloadQueue = [];
-}
-function toggleCutterDownloadMode() {
-    const isZip = zipCheckbox.checked;
-    cutterDownloadBtn.textContent = isZip ? "⬇️ 一键下载所有打包切图 (ZIP)" : "⬇️ 顺序下载全部图片的所有文件";
-    if (isZip) cutterDownloadBtn.classList.add('zip-mode'); else cutterDownloadBtn.classList.remove('zip-mode');
-}
+function resetCutterWorkspace() { cutterFileInput.value = ''; cutterMasterContainer.innerHTML = ''; cutterStatus.textContent = ''; cutterActionBar.style.display = 'none'; cutterDownloadQueue = []; }
+function toggleCutterDownloadMode() { const isZip = zipCheckbox.checked; cutterDownloadBtn.textContent = isZip ? "⬇️ 一键下载所有打包切图 (ZIP)" : "⬇️ 顺序下载所有文件"; }
 
 function handleCutterBatchFiles(e) {
     const files = Array.from(e.target.files); if (files.length === 0) return;
     cutterMasterContainer.innerHTML = ''; cutterDownloadQueue = []; cutterActionBar.style.display = 'none';
     cutterStatus.textContent = `发现 ${files.length} 张图片，正在初始化任务...`;
-    
-    const gridSize = parseInt(gridSelect.value); 
-    const maxByteSize = (parseFloat(cutterSizeInput.value) || 15) * 1024;
-    const totalExpectedSegments = files.length * gridSize * gridSize; 
-    let overallCompletedSegments = 0;
-    
+    const gridSize = parseInt(gridSelect.value); const maxByteSize = (parseFloat(cutterSizeInput.value) || 15) * 1024;
+    const totalExpectedSegments = files.length * gridSize * gridSize; let overallCompletedSegments = 0;
     let pattern = namePatternInput.value.trim() || "{num}";
     let namingMode = folderNamingMode.value;
     let folderPrefix = folderPrefixInput.value.trim().replace(/[\\/:*?"<>|]/g, "_");
 
     files.forEach((file, fileIdx) => {
         const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        
-        // 计算当前图片应该归属的 ZIP 内部文件夹名字
         let targetedFolderName = baseName;
-        if (namingMode === 'numeric') {
-            targetedFolderName = String(fileIdx + 1);
-        } else if (namingMode === 'alphabet') {
-            targetedFolderName = convertToAlphabet(fileIdx);
-        }
-        targetedFolderName = folderPrefix + targetedFolderName; // 挂载用户可选的前缀
+        if (namingMode === 'numeric') targetedFolderName = String(fileIdx + 1);
+        else if (namingMode === 'alphabet') targetedFolderName = convertToAlphabet(fileIdx);
+        targetedFolderName = folderPrefix + targetedFolderName;
 
-        const batchBox = document.createElement('div'); 
-        batchBox.className = 'batch-wrapper';
-        batchBox.innerHTML = `<div class="batch-title">🖼️ 分配映射位置 📁 [ ${targetedFolderName} ] &nbsp; (源文件: ${file.name})</div><div class="grid-output" id="grid_box_${fileIdx}" style="grid-template-columns: repeat(${gridSize}, 1fr)"></div>`;
-        cutterMasterContainer.appendChild(batchBox); 
-        
-        const currentGridBox = document.getElementById(`grid_box_${fileIdx}`);
+        const batchBox = document.createElement('div'); batchBox.className = 'batch-wrapper';
+        batchBox.innerHTML = `<div class="batch-title">📁 映射目录: [ ${targetedFolderName} ] (源文件: ${file.name})</div><div class="grid-output" id="grid_box_${fileIdx}" style="grid-template-columns: repeat(${gridSize}, 1fr)"></div>`;
+        cutterMasterContainer.appendChild(batchBox); const currentGridBox = document.getElementById(`grid_box_${fileIdx}`);
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
                 sliceSingleImgInBatch(img, baseName, targetedFolderName, gridSize, maxByteSize, pattern, currentGridBox, () => {
                     overallCompletedSegments += (gridSize * gridSize);
-                    if (overallCompletedSegments === totalExpectedSegments) {
-                        cutterStatus.textContent = `✨ 批量处理成功！已切出 ${totalExpectedSegments} 张高保真切片。`;
-                        cutterActionBar.style.display = 'block';
-                    }
+                    if (overallCompletedSegments === totalExpectedSegments) { cutterStatus.textContent = `✨ 批量切图与智压任务链完成。`; cutterActionBar.style.display = 'block'; }
                 });
             }; img.src = event.target.result;
         }; reader.readAsDataURL(file);
@@ -522,10 +748,8 @@ function handleCutterBatchFiles(e) {
 
 function sliceSingleImgInBatch(img, baseName, targetedFolderName, gridSize, maxByteSize, pattern, targetDOMContainer, onImgAllDoneCallback) {
     let srcX = 0, srcY = 0, srcWidth = img.width, srcHeight = img.height; const targetRatio = 3 / 4;
-    if (img.width / img.height > targetRatio) { srcWidth = img.height * targetRatio; srcX = (img.width - srcWidth) / 2; } 
-    else { srcHeight = img.width / targetRatio; srcY = (img.height - srcHeight) / 2; }
+    if (img.width / img.height > targetRatio) { srcWidth = img.height * targetRatio; srcX = (img.width - srcWidth) / 2; } else { srcHeight = img.width / targetRatio; srcY = (img.height - srcHeight) / 2; }
     const subWidth = srcWidth / gridSize; const subHeight = srcHeight / gridSize; const segmentsCount = gridSize * gridSize; let localCompleted = 0;
-    
     for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
             const index = r * gridSize + c; const numId = String(index + 1).padStart(2, '0'); const posX = srcX + (c * subWidth); const posY = srcY + (r * subHeight);
@@ -533,14 +757,10 @@ function sliceSingleImgInBatch(img, baseName, targetedFolderName, gridSize, maxB
             ctx.drawImage(img, posX, posY, subWidth, subHeight, 0, 0, canvas.width, canvas.height);
             compressEngine(canvas, 0.95, maxByteSize, (blob) => {
                 const url = URL.createObjectURL(blob); const kbSize = (blob.size / 1024).toFixed(2);
-                let dynamicName = pattern.replace(/{name}/g, baseName).replace(/{num}/g, numId).replace(/[\\/:*?"<>|]/g, "_");
-                const finalFileName = `${dynamicName}.jpeg`;
-                
-                // 将计算好的文件夹路径和文件名存入队列
+                let dynamicName = pattern.replace(/{name}/g, baseName).replace(/{num}/g, numId).replace(/[\\/:*?"<>|]/g, "_"); const finalFileName = `${dynamicName}.jpeg`;
                 cutterDownloadQueue.push({ url, blob, folder: targetedFolderName, fileName: finalFileName });
-                
                 const item = document.createElement('div'); item.className = 'img-item'; item.setAttribute('data-id', numId);
-                item.innerHTML = `<img src="${url}"><div class="info"><strong style="word-break: break-all;">${finalFileName}</strong><br>${kbSize} KB</div><a class="btn-download" href="${url}" download="${finalFileName}">下载</a>`;
+                item.innerHTML = `<img src="${url}"><div class="info"><strong>${finalFileName}</strong><br>${kbSize} KB</div>`;
                 targetDOMContainer.appendChild(item); localCompleted++;
                 if (localCompleted === segmentsCount) { sortOutputDOM(targetDOMContainer); onImgAllDoneCallback(); }
             });
@@ -551,135 +771,75 @@ function sliceSingleImgInBatch(img, baseName, targetedFolderName, gridSize, maxB
 function executeCutterDownload() {
     if (cutterDownloadQueue.length === 0) return;
     if (zipCheckbox.checked) {
-        const zip = new JSZip(); 
-        cutterDownloadQueue.forEach(task => { 
-            zip.folder(task.folder).file(task.fileName, task.blob); 
-        });
-        
-        let zipTitle = (folderPrefixInput.value.trim() || "批量切图") + "_工具箱打包";
-        zipTitle = zipTitle.replace(/[\\/:*?"<>|]/g, "_");
-        
-        cutterStatus.textContent = '正在整合目录、打包为本地压缩包中...';
-        zip.generateAsync({ type: "blob" }).then(content => { 
-            saveAs(content, `${zipTitle}.zip`); 
-            cutterStatus.textContent = `✨ 成功！已安全导出压缩包【${zipTitle}.zip】。`; 
-        });
+        const zip = new JSZip(); cutterDownloadQueue.forEach(task => { zip.folder(task.folder).file(task.fileName, task.blob); });
+        let zipTitle = (folderPrefixInput.value.trim() || "切图集") + "_pack";
+        zip.generateAsync({ type: "blob" }).then(content => { saveAs(content, `${zipTitle}.zip`); });
     } else {
-        cutterDownloadQueue.forEach((task, i) => { if(!task) return; setTimeout(() => { const a = document.createElement('a'); a.href = task.url; a.download = task.fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); }, i * 180); });
+        cutterDownloadQueue.forEach((task, i) => { setTimeout(() => { const a = document.createElement('a'); a.href = task.url; a.download = task.fileName; a.click(); }, i * 150); });
     }
 }
 
 // ==================== 业务逻辑二：单图压缩模块 ====================
-const compressorFileInput = document.getElementById('compressorFileInput');
-const compressorOutputContainer = document.getElementById('compressorOutputContainer');
-const compressorStatus = document.getElementById('compressorStatus');
-const compressorActionBar = document.getElementById('compressorActionBar');
-const compressorSizeInput = document.getElementById('compressorSizeInput');
-let singleCompressResult = null; let compressorActiveImg = null;
-
+const compressorFileInput = document.getElementById('compressorFileInput'); const compressorOutputContainer = document.getElementById('compressorOutputContainer'); const compressorStatus = document.getElementById('compressorStatus'); const compressorActionBar = document.getElementById('compressorActionBar'); const compressorSizeInput = document.getElementById('compressorSizeInput'); let singleCompressResult = null;
 compressorFileInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) handleIncomingImgData(file); });
-function resetCompressorWorkspace() { compressorFileInput.value = ''; compressorOutputContainer.innerHTML = ''; compressorStatus.textContent = ''; compressorActionBar.style.display = 'none'; singleCompressResult = null; compressorActiveImg = null; }
-
+function resetCompressorWorkspace() { compressorFileInput.value = ''; compressorOutputContainer.innerHTML = ''; compressorStatus.textContent = ''; compressorActionBar.style.display = 'none'; singleCompressResult = null; }
 function handleIncomingImgData(file) {
-    compressorStatus.textContent = '载入中...'; compressorActionBar.style.display = 'none'; compressorOutputContainer.innerHTML = '';
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() { compressorActiveImg = img; processSingleCompress(img); };
-        img.src = event.target.result;
-    }; reader.readAsDataURL(file);
+    compressorStatus.textContent = '载入中...'; const reader = new FileReader();
+    reader.onload = function(event) { const img = new Image(); img.onload = function() { processSingleCompress(img); }; img.src = event.target.result; }; reader.readAsDataURL(file);
 }
 function processSingleCompress(img) {
-    compressorStatus.textContent = '正在计算原图最佳压缩比例...'; compressorOutputContainer.innerHTML = ''; singleCompressResult = null;
     const maxByteSize = (parseFloat(compressorSizeInput.value) || 100) * 1024; const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.width = img.width; canvas.height = img.height; ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     compressEngine(canvas, 0.98, maxByteSize, (blob) => {
         const url = URL.createObjectURL(blob); const kbSize = (blob.size / 1024).toFixed(2); singleCompressResult = { url, fileName: `compressed_image.jpeg` };
-        const item = document.createElement('div'); item.className = 'img-item'; item.style.maxWidth = "80%";
-        item.innerHTML = `<img src="${url}"><div class="info"><strong>等比例压缩输出</strong><br>最终体积: ${kbSize} KB</div>`;
-        compressorOutputContainer.appendChild(item); compressorStatus.textContent = `✨ 成功！图片已成功压至目标限制内。`; compressorActionBar.style.display = 'block';
+        compressorOutputContainer.innerHTML = `<div class="img-item"><img src="${url}"><div class="info">体积: ${kbSize} KB</div></div>`; compressorStatus.textContent = `✨ 压制成功！`; compressorActionBar.style.display = 'block';
     });
 }
-function executeCompressorDownload() { if (!singleCompressResult) return; const a = document.createElement('a'); a.href = singleCompressResult.url; a.download = singleCompressResult.fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+function executeCompressorDownload() { if (singleCompressResult) { const a = document.createElement('a'); a.href = singleCompressResult.url; a.download = singleCompressResult.fileName; a.click(); } }
 
 // ==================== 业务逻辑三：万能资源下载模块 ====================
-const targetUrlInput = document.getElementById('targetUrlInput'); const downloaderStatus = document.getElementById('downloaderStatus'); const resDisplayArea = document.getElementById('resDisplayArea'); const resGridContainer = document.getElementById('resGridContainer');
-let discoveredResources = []; let currentActiveTab = 'all';
+const targetUrlInput = document.getElementById('targetUrlInput'); const downloaderStatus = document.getElementById('downloaderStatus'); const resDisplayArea = document.getElementById('resDisplayArea'); const resGridContainer = document.getElementById('resGridContainer'); let discoveredResources = []; let currentActiveTab = 'all';
 function resetDownloaderWorkspace() { targetUrlInput.value = ''; downloaderStatus.textContent = ''; resDisplayArea.style.display = 'none'; resGridContainer.innerHTML = ''; discoveredResources = []; }
 async function analyzeTargetUrl() {
-    let urlText = targetUrlInput.value.trim(); if (!urlText) { downloaderStatus.textContent = '❌ 请先输入有效的网址链接！'; return; }
-    if (!/^https?:\/\//i.test(urlText)) { urlText = 'https://' + urlText; targetUrlInput.value = urlText; }
-    downloaderStatus.textContent = '🔍 正在分析提取中，请稍候...'; resDisplayArea.style.display = 'none'; resGridContainer.innerHTML = ''; discoveredResources = [];
-    if (/\.(jpeg|jpg|gif|png|webp|mp4|webm|ogg|mp3|wav)$/i.test(urlText.split('?')[0])) {
-        downloaderStatus.textContent = '🎯 检测到多媒体直接链接，已成功捕获！'; let type = 'image'; if (/\.(mp4|webm|ogg)$/i.test(urlText)) type = 'video'; if (/\.(mp3|wav)$/i.test(urlText)) type = 'audio';
-        discoveredResources.push({ url: urlText, type: type, name: urlText.substring(urlText.lastIndexOf('/') + 1) }); renderDiscoveredResources(); return;
-    }
+    let urlText = targetUrlInput.value.trim(); if (!urlText) return; if (!/^https?:\/\//i.test(urlText)) urlText = 'https://' + urlText;
+    downloaderStatus.textContent = '🔍 正在分析提取中...';
     try {
-        let htmlContent = '';
-        try { const res = await fetch(urlText); htmlContent = await res.text(); } 
-        catch (e) { const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlText)}`; const res = await fetch(proxyUrl); const json = await res.json(); htmlContent = json.contents; }
+        let htmlContent = ''; const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlText)}`; const res = await fetch(proxyUrl); const json = await res.json(); htmlContent = json.contents;
         const urlObj = new URL(urlText); const baseUrl = urlObj.origin + urlObj.pathname;
-        const imgRegex = /<img[^>]+src=["']([^"']+)["']/g; const videoRegex = /<video[^>]+src=["']([^"']+)["']/g; const audioRegex = /<audio[^>]+src=["']([^"']+)["']/g; const sourceRegex = /<source[^>]+src=["']([^"']+)["']/g; const bgRegex = /url\(["']?([^"')]+)["']?\)/g;
-        let match; const seenUrls = new Set();
-        const addRes = (rawUrl, type) => {
-            if (!rawUrl || rawUrl.startsWith('data:')) return;
+        const imgRegex = /<img[^>]+src=["']([^"']+)["']/g; let match; const seenUrls = new Set();
+        while ((match = imgRegex.exec(htmlContent)) !== null) {
             try {
-                const absoluteUrl = new URL(rawUrl, baseUrl).href;
-                if (!seenUrls.has(absoluteUrl)) {
-                    seenUrls.add(absoluteUrl); let name = absoluteUrl.substring(absoluteUrl.lastIndexOf('/') + 1).split('?')[0] || `${type}_res`;
-                    if(!name.includes('.')) name += type === 'image' ? '.jpg' : (type === 'video' ? '.mp4' : '.mp3');
-                    discoveredResources.push({ url: absoluteUrl, type: type, name: name });
-                }
-            } catch(err) {}
-        };
-        while ((match = imgRegex.exec(htmlContent)) !== null) addRes(match[1], 'image');
-        while ((match = videoRegex.exec(htmlContent)) !== null) addRes(match[1], 'video');
-        while ((match = audioRegex.exec(htmlContent)) !== null) addRes(match[1], 'audio');
-        if (discoveredResources.length === 0) downloaderStatus.textContent = '⚠️ 未发现明显的标准媒体资源。';
-        else { downloaderStatus.textContent = `✨ 成功嗅探出 ${discoveredResources.length} 个媒体文件！`; renderDiscoveredResources(); }
-    } catch (err) { downloaderStatus.textContent = '❌ 解析失败。'; }
+                const absUrl = new URL(match[1], baseUrl).href;
+                if (!seenUrls.has(absUrl) && !absUrl.startsWith('data:')) { seenUrls.add(absUrl); discoveredResources.push({ url: absUrl, type: 'image', name: absUrl.substring(absUrl.lastIndexOf('/') + 1).split('?')[0] || 'img.jpg' }); }
+            }catch(e){}
+        }
+        if(discoveredResources.length === 0) downloaderStatus.textContent = '⚠️ 网页解析完成，未发现元素。';
+        else { downloaderStatus.textContent = `发现 ${discoveredResources.length} 个媒体。`; resDisplayArea.style.display = 'block'; filterAndRenderGrid(); }
+    } catch (e) { downloaderStatus.textContent = '❌ 跨域通道受阻。'; }
 }
-function renderDiscoveredResources() { resDisplayArea.style.display = 'block'; const counts = { all: discoveredResources.length, image: 0, video: 0, audio: 0 }; discoveredResources.forEach(r => counts[r.type]++); document.getElementById('count-all').textContent = counts.all; document.getElementById('count-image').textContent = counts.image; document.getElementById('count-video').textContent = counts.video; document.getElementById('count-audio').textContent = counts.audio; filterAndRenderGrid(); }
-function switchResTab(tabType) { currentActiveTab = tabType; const tabs = document.querySelectorAll('.res-tab'); tabs.forEach(t => t.classList.remove('active')); event.target.classList.add('active'); filterAndRenderGrid(); }
-function filterAndRenderGrid() { resGridContainer.innerHTML = ''; const filtered = discoveredResources.filter(r => currentActiveTab === 'all' || r.type === currentActiveTab); filtered.forEach(res => { const card = document.createElement('div'); card.className = 'res-card'; let previewHtml = res.type === 'image' ? `<img src="${res.url}">` : (res.type === 'video' ? `<video src="${res.url}" controls preload="metadata"></video>` : `🎵`); card.innerHTML = `<div class="res-preview">${previewHtml}</div><div class="res-info"><strong>名称:</strong> ${res.name}</div><button class="btn-download" onclick="triggerDirectDownload('${res.url}', '${res.name}')">💾 保存到本地</button>`; resGridContainer.appendChild(card); }); }
-function triggerDirectDownload(url, filename) { fetch(url, { method: 'GET', mode: 'cors' }).then(res => res.blob()).then(blob => { const localUrl = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = localUrl; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); }).catch(() => { const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.click(); }); }
+function filterAndRenderGrid() { resGridContainer.innerHTML = ''; discoveredResources.forEach(res => { const card = document.createElement('div'); card.className = 'res-card'; card.innerHTML = `<div class="res-preview"><img src="${res.url}"></div><div class="res-info">${res.name}</div><button class="btn-download" onclick="window.open('${res.url}')">💾 直链查看</button>`; resGridContainer.appendChild(card); }); }
 
 // ==================== 业务逻辑四：视频转序列帧图片模块 ====================
-const videoFileInput = document.getElementById('videoFileInput'); const videoStatus = document.getElementById('videoStatus'); const videoActionBar = document.getElementById('videoActionBar'); const videoGridContainer = document.getElementById('videoGridContainer'); const videoOutputWrapper = document.getElementById('videoOutputWrapper'); const videoFrameCountInput = document.getElementById('videoFrameCountInput'); const videoFrameSizeInput = document.getElementById('videoFrameSizeInput'); const videoNamePrefix = document.getElementById('videoNamePrefix');
-let videoZipQueue = []; 
+const videoFileInput = document.getElementById('videoFileInput'); const videoStatus = document.getElementById('videoStatus'); const videoActionBar = document.getElementById('videoActionBar'); const videoGridContainer = document.getElementById('videoGridContainer'); const videoOutputWrapper = document.getElementById('videoOutputWrapper'); const videoFrameCountInput = document.getElementById('videoFrameCountInput'); const videoFrameSizeInput = document.getElementById('videoFrameSizeInput'); const videoNamePrefix = document.getElementById('videoNamePrefix'); let videoZipQueue = []; 
 videoFileInput.addEventListener('change', (e) => { if (e.target.files[0]) processVideoFrameEngine(e.target.files[0]); });
 function resetVideoWorkspace() { videoFileInput.value = ''; videoStatus.textContent = ''; videoActionBar.style.display = 'none'; videoGridContainer.innerHTML = ''; videoOutputWrapper.style.display = 'none'; videoZipQueue = []; }
-
 function processVideoFrameEngine(file) {
-    if (!file) return;
-    videoGridContainer.innerHTML = ''; videoOutputWrapper.style.display = 'none'; videoActionBar.style.display = 'none'; videoZipQueue = [];
-    videoStatus.textContent = '🎬 正在加载本地视频...';
+    videoGridContainer.innerHTML = ''; videoOutputWrapper.style.display = 'none'; videoZipQueue = []; videoStatus.textContent = '🎬 载入视频中...';
     const targetFrameCount = parseInt(videoFrameCountInput.value) || 10; const maxKByteSize = (parseFloat(videoFrameSizeInput.value) || 50) * 1024; const prefixName = videoNamePrefix.value.trim() || "frame";
     const videoNode = document.createElement('video'); videoNode.src = URL.createObjectURL(file); videoNode.muted = true; videoNode.playsInline = true;
     videoNode.addEventListener('loadedmetadata', async () => {
-        const duration = videoNode.duration; if (!duration || isNaN(duration)) { videoStatus.textContent = '❌ 无法获取视频时长。'; return; }
-        videoOutputWrapper.style.display = 'block';
-        const interval = duration / (targetFrameCount + 1); let capturedCount = 0;
+        videoOutputWrapper.style.display = 'block'; const interval = videoNode.duration / (targetFrameCount + 1);
         for (let i = 1; i <= targetFrameCount; i++) {
-            const targetTime = i * interval; videoStatus.textContent = `⏳ 正在抽帧：第 ${i} / ${targetFrameCount} 张...`;
-            await seekVideoToTime(videoNode, targetTime);
+            videoStatus.textContent = `⏳ 抽帧中: ${i}/${targetFrameCount}...`; await seekVideoToTime(videoNode, i * interval);
             const canvas = document.createElement('canvas'); canvas.width = videoNode.videoWidth; canvas.height = videoNode.videoHeight;
-            const ctx = canvas.getContext('2d'); ctx.drawImage(videoNode, 0, 0, canvas.width, canvas.height);
-            const indexStr = String(i).padStart(3, '0'); const finalImageName = `${prefixName}_${indexStr}.jpeg`;
-            await new Promise((resolve) => {
-                compressEngine(canvas, 0.95, maxKByteSize, (blob) => {
-                    const blobUrl = URL.createObjectURL(blob); const realKB = (blob.size / 1024).toFixed(1);
-                    videoZipQueue.push({ blob: blob, fileName: finalImageName });
-                    const card = document.createElement('div'); card.className = 'res-card';
-                    card.innerHTML = `<div class="res-preview"><img src="${blobUrl}"></div><div class="res-info"><strong>${finalImageName}</strong><br>${realKB} KB</div><a class="btn-download" href="${blobUrl}" download="${finalImageName}">单帧下载</a>`;
-                    videoGridContainer.appendChild(card); capturedCount++; resolve();
-                });
-            });
+            canvas.getContext('2d').drawImage(videoNode, 0, 0, canvas.width, canvas.height);
+            const finalImageName = `${prefixName}_${String(i).padStart(3, '0')}.jpeg`;
+            await new Promise((res) => { compressEngine(canvas, 0.95, maxKByteSize, (blob) => { const blobUrl = URL.createObjectURL(blob); videoZipQueue.push({ blob, fileName: finalImageName }); const card = document.createElement('div'); card.className = 'res-card'; card.innerHTML = `<div class="res-preview"><img src="${blobUrl}"></div><div class="res-info">${finalImageName}</div>`; videoGridContainer.appendChild(card); res(); }); });
         }
-        videoStatus.textContent = `✨ 成功提取 ${capturedCount} 张序列图像！`; videoActionBar.style.display = 'block'; URL.revokeObjectURL(videoNode.src);
+        videoStatus.textContent = `✨ 抽帧完成！`; videoActionBar.style.display = 'block';
     });
 }
-function seekVideoToTime(videoElement, time) { return new Promise((resolve) => { const onSeeked = () => { videoElement.removeEventListener('seeked', onSeeked); resolve(); }; videoElement.addEventListener('seeked', onSeeked); videoElement.currentTime = time; }); }
-function executeVideoZipDownload() { if (videoZipQueue.length === 0) return; const zip = new JSZip(); videoZipQueue.forEach(item => { zip.file(item.fileName, item.blob); }); const zipName = (videoNamePrefix.value.trim() || "video_frames") + "_序列帧合集.zip"; zip.generateAsync({ type: "blob" }).then(content => { saveAs(content, zipName); videoStatus.textContent = `✨ 已导出【${zipName}】。`; }); }
+function seekVideoToTime(v, t) { return new Promise((res) => { const f = () => { v.removeEventListener('seeked', f); res(); }; v.addEventListener('seeked', f); v.currentTime = t; }); }
+function executeVideoZipDownload() { const zip = new JSZip(); videoZipQueue.forEach(item => { zip.file(item.fileName, item.blob); }); zip.generateAsync({ type: "blob" }).then(content => { saveAs(content, "sequence_frames.zip"); }); }
 
 // ==================== 底层通用智压递归引擎 ====================
 function compressEngine(canvas, quality, maxByteSize, callback) {
@@ -687,8 +847,7 @@ function compressEngine(canvas, quality, maxByteSize, callback) {
         if (blob.size <= maxByteSize || quality <= 0.1) {
             if (blob.size > maxByteSize) {
                 const nextCanvas = document.createElement('canvas'); nextCanvas.width = Math.floor(canvas.width * 0.85); nextCanvas.height = Math.floor(canvas.height * 0.85);
-                const ctx = nextCanvas.getContext('2d'); ctx.drawImage(canvas, 0, 0, nextCanvas.width, nextCanvas.height);
-                compressEngine(nextCanvas, 0.9, maxByteSize, callback);
+                nextCanvas.getContext('2d').drawImage(canvas, 0, 0, nextCanvas.width, nextCanvas.height); compressEngine(nextCanvas, 0.9, maxByteSize, callback);
             } else { callback(blob); }
         } else { compressEngine(canvas, quality - 0.05, maxByteSize, callback); }
     }, 'image/jpeg', quality);
